@@ -50,8 +50,9 @@ void draw() {
   for(int i=0; i < displayStrs.length; i++) {
     text(displayStrs[i], 10, i*20 + 40);
   }
-  textSize(80);
-  text("Lap "+track.lap, width-300, 80);
+  
+  textSize(20);
+  text("FPS: "+frameRate, width-300, 80);
   textSize(30);
   for(int i=0; i < track.lap; i++) {
     text("Lap "+(i+1)+": "+formatTime(track.lapTimes.get(i)), width-300, 100+(i+1)*30, width, 100+(i+2)*30);
@@ -62,10 +63,6 @@ void draw() {
   testCollidePoint = track.update(car);
   if (testCollidePoint != null) {
     collidePoint = testCollidePoint;
-    //PVector d = new PVector(-car.vx, -car.vy);
-    //d.normalize().mult(car.radius);
-    //car.x += d.x;
-    //car.y += d.y;
     car.vx = -car.vx;
     car.vy = -car.vy;
     

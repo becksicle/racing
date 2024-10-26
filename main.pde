@@ -1,4 +1,6 @@
 Car car = new Car(0, 0);
+Car npc = new Car(10, 10);
+
 Camera camera = new Camera();
 Track track = new Track();
 
@@ -51,14 +53,13 @@ void draw() {
     text(displayStrs[i], 10, i*20 + 40);
   }
   
-  textSize(20);
-  text("FPS: "+frameRate, width-300, 80);
-  textSize(30);
-  for(int i=0; i < track.lap; i++) {
-    text("Lap "+(i+1)+": "+formatTime(track.lapTimes.get(i)), width-300, 100+(i+1)*30, width, 100+(i+2)*30);
+  text("FPS: "+frameRate, width-300, 40);
+  for(int i=0; i < car.lap; i++) {
+    text("Lap "+(i+1)+": "+formatTime(car.lapTimes.get(i)), width-300, 70+(i+1)*30);
   }
 
   car.update(joy.dir);
+  npc.update(track);
 
   testCollidePoint = track.update(car);
   if (testCollidePoint != null) {
@@ -75,6 +76,7 @@ void draw() {
 
 
   car.draw(camera);
+  npc.draw(camera);
   track.draw(camera);
 
   joy.update();

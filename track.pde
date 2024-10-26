@@ -1,9 +1,5 @@
 class Track {
   ArrayList<PVector>[] coords = new ArrayList[] { new ArrayList<PVector>(), new ArrayList<PVector>()};
-  int lastPassedSegment = 0;
-  int lap = 1;
-  int lastMillis = millis();
-  ArrayList<Integer> lapTimes = new ArrayList<Integer>();
 
   PVector segmentIntersection(
     float x1, float y1,
@@ -42,9 +38,9 @@ class Track {
         line(c.sx(p1.x), c.sy(p1.y), c.sx(p2.x), c.sy(p2.y));
         if(j == 0) {
           PVector p3 = getOppositePoint(i);
-          if (lastPassedSegment == i) {
-            stroke(255, 0, 0);
-          }
+          //if (lastPassedSegment == i) {
+          //  stroke(255, 0, 0);
+          //}
           line(c.sx(p1.x), c.sy(p1.y), c.sx(p3.x), c.sy(p3.y));
           
         }
@@ -77,17 +73,15 @@ class Track {
   }
 
   PVector update(Car car) {
-    int elapsedTime = millis() - lastMillis;
-    lastMillis = millis();
-    
-    int lapElapsed = lapTimes.get(lap-1);
-    lapTimes.set(lap-1, lapElapsed+elapsedTime);
+    car.updateElapsedLapTime();
                
     for (int j=0; j < coords.length; j++) {
       ArrayList<PVector> tcs = coords[j];
       for (int i=0; i < tcs.size(); i++) {
         PVector p1 = tcs.get(i);
         PVector p2 = tcs.get((i+1)%tcs.size());
+        
+        // check wall collision
         PVector intersect = segmentIntersection(
           car.x, car.y,
           car.x + car.vx, car.y + car.vy,
@@ -95,7 +89,8 @@ class Track {
           p2.x, p2.y
           );
        
-        if(j == 0 && i == (lastPassedSegment + 1) % tcs.size()) {
+       // check if we've passed a segment and/or made a full lap
+        if(j == 0 && i == (car.lastPassedSegment + 1) % tcs.size()) {
           PVector p3 = getOppositePoint(i);
           PVector passedIntersect = segmentIntersection(
             car.x, car.y,
@@ -103,12 +98,9 @@ class Track {
             p1.x, p1.y,
             p3.x, p3.y
             );
+            
            if(passedIntersect != null) {
-             lastPassedSegment = i;
-             if(lastPassedSegment == 0) {
-               lap++;
-               lapTimes.add(0);
-             }
+             car.passSegment(i);
           }
         }
           
@@ -134,8 +126,5 @@ class Track {
         coords[i].remove(coords[i].size()-1);
       }
     }
-    
-    lastMillis = millis();
-    lapTimes.add(0);
   }
 }

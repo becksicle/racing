@@ -1,11 +1,35 @@
 class Car {
   float x, y, vx, vy, tvx, tvy, radius = 25;
   
+  int lastPassedSegment = 0;
+  int lap = 1;
+  int lastMillis = millis();
+  ArrayList<Integer> lapTimes = new ArrayList<Integer>();
+  
   Car(float x, float y) {
     this.x = x;
     this.y = y;
     vx = 0;
     vy = 1;
+    
+    lastMillis = millis();
+    lapTimes.add(0);
+  }
+  
+  void updateElapsedLapTime() {
+    int elapsedTime = millis() - lastMillis;
+    lastMillis = millis();
+    
+    int lapElapsed = lapTimes.get(lap-1);
+    lapTimes.set(lap-1, lapElapsed+elapsedTime);
+  }
+  
+  void passSegment(int segment) {
+    lastPassedSegment = segment;
+    if(lastPassedSegment == 0) {
+      lap++;
+      lapTimes.add(0);
+     } 
   }
   
   void update(PVector dir) {
@@ -17,6 +41,9 @@ class Car {
     
     x += vx;
     y += vy;
+  }
+  
+  void update(Track track) {
   }
   
   void draw(Camera c) {

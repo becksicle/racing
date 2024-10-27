@@ -1,5 +1,5 @@
-Car car = new Car(0, 0);
-Car npc = new Car(10, 10);
+Car car = new Car(0, 0, color(255, 100, 100));
+Car npc = new Car(10, 10, color(100, 200, 150));
 
 Camera camera = new Camera();
 Track track = new Track();

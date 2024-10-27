@@ -25,6 +25,14 @@ class Track {
   PVector getOppositePoint(int pointIndex) {
     return coords[1].get(pointIndex);
   }
+  
+  PVector getCenterPoint(int index) {
+    PVector innerPoint = coords[0].get(index);
+    PVector outerPoint = coords[1].get(index);
+    float centerX = (innerPoint.x + outerPoint.x) / 2;
+    float centerY = (innerPoint.y + outerPoint.y) / 2;
+    return new PVector(centerX, centerY);
+  }
 
 
   void draw(Camera c) {
@@ -36,13 +44,12 @@ class Track {
         p2 = tcs.get((i+1)%tcs.size());
         stroke(255, 255, 0);
         line(c.sx(p1.x), c.sy(p1.y), c.sx(p2.x), c.sy(p2.y));
-        if(j == 0) {
+        if (j == 0) {
           PVector p3 = getOppositePoint(i);
           //if (lastPassedSegment == i) {
           //  stroke(255, 0, 0);
           //}
           line(c.sx(p1.x), c.sy(p1.y), c.sx(p3.x), c.sy(p3.y));
-          
         }
       }
     }
@@ -65,7 +72,7 @@ class Track {
       strings[ti] = "";
       for (int ci = 0; ci < coords[ti].size(); ci++) {
         strings[ti] += coords[ti].get(ci).x + " " + coords[ti].get(ci).y+" ";
-    //    println("coords["+ti+"].add(new PVector("+coords[ti].get(ci).x+", "+coords[ti].get(ci).y+"));");
+        //    println("coords["+ti+"].add(new PVector("+coords[ti].get(ci).x+", "+coords[ti].get(ci).y+"));");
       }
     }
     saveStrings("track.txt", strings);
@@ -74,13 +81,13 @@ class Track {
 
   void update(Car car) {
     car.updateElapsedLapTime();
-               
+
     for (int j=0; j < coords.length; j++) {
       ArrayList<PVector> tcs = coords[j];
       for (int i=0; i < tcs.size(); i++) {
         PVector p1 = tcs.get(i);
         PVector p2 = tcs.get((i+1)%tcs.size());
-        
+
         // check wall collision
         PVector intersect = segmentIntersection(
           car.x, car.y,
@@ -88,9 +95,9 @@ class Track {
           p1.x, p1.y,
           p2.x, p2.y
           );
-       
-       // check if we've passed a segment and/or made a full lap
-        if(j == 0 && i == (car.lastPassedSegment + 1) % tcs.size()) {
+
+        // check if we've passed a segment and/or made a full lap
+        if (j == 0 && i == (car.lastPassedSegment + 1) % tcs.size()) {
           PVector p3 = getOppositePoint(i);
           PVector passedIntersect = segmentIntersection(
             car.x, car.y,
@@ -98,12 +105,12 @@ class Track {
             p1.x, p1.y,
             p3.x, p3.y
             );
-            
-           if(passedIntersect != null) {
-             car.passSegment(i);
+
+          if (passedIntersect != null) {
+            car.passSegment(i);
           }
         }
-          
+
         if (intersect != null) {
           car.vx = -car.vx;
           car.vy = -car.vy;
@@ -112,17 +119,40 @@ class Track {
     }
   }
 
+  // Helper method to find the nearest segment on the track
+  int findNearestSegment(float x, float y) {
+    int nearestIndex = 0;
+    double minDistance = Double.MAX_VALUE;
+
+    for (int i = 0; i < track.coords[0].size(); i++) {
+      PVector innerPoint = coords[0].get(i);
+      PVector outerPoint = coords[1].get(i);
+
+      double centerX = (innerPoint.x + outerPoint.x) / 2;
+      double centerY = (innerPoint.y + outerPoint.y) / 2;
+      double distance = Math.sqrt((centerX - x) * (centerX - x) + (centerY - y) * (centerY - y));
+
+      if (distance < minDistance) {
+        minDistance = distance;
+        nearestIndex = i;
+      }
+    }
+
+    return nearestIndex;
+  }
+
+
   void initialize(String[] strings) {
-    for(int i=0; i < 2; i++) {
+    for (int i=0; i < 2; i++) {
       String[] parts = strings[i].split(" ");
-      for(int j=0; j < parts.length; j += 2) {
+      for (int j=0; j < parts.length; j += 2) {
         coords[i].add(new PVector(Float.parseFloat(parts[j]), Float.parseFloat(parts[j+1])));
       }
     }
-    
+
     int targetSize = min(coords[0].size(), coords[1].size());
-    for(int i=0; i < coords.length; i++) {
-      while(coords[i].size() > targetSize) {
+    for (int i=0; i < coords.length; i++) {
+      while (coords[i].size() > targetSize) {
         coords[i].remove(coords[i].size()-1);
       }
     }

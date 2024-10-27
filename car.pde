@@ -16,6 +16,48 @@ class Car {
     lapTimes.add(0);
   }
   
+  void doCollision(Car other) {
+    if(dist(x, y, other.x, other.y) < radius) {
+        // Calculate the difference in positions
+        double dx = other.x - this.x;
+        double dy = other.y - this.y;
+        
+        // Calculate the distance between the centers
+        double distance = Math.sqrt(dx * dx + dy * dy);
+        
+        // Normalized vector of the collision
+        double nx = dx / distance;
+        double ny = dy / distance;
+
+        // Calculate the relative velocity
+        double dvx = other.vx - this.vx;
+        double dvy = other.vy - this.vy;
+
+        // Relative velocity along the normal direction
+        double velocityAlongNormal = dvx * nx + dvy * ny;
+
+        // If cars are moving away from each other, no collision response is needed
+        if (velocityAlongNormal > 0) return;
+
+        // Assuming elastic collision, calculate the impulse
+        double impulse = -2 * velocityAlongNormal;
+
+        // Apply impulse to the cars’ velocities
+        this.vx -= impulse * nx;
+        this.vy -= impulse * ny;
+        other.vx += impulse * nx;
+        other.vy += impulse * ny;
+
+        // Optional: Slightly adjust positions to prevent overlap
+        double overlap = (this.radius + other.radius - distance) / 2;
+        this.x -= overlap * nx;
+        this.y -= overlap * ny;
+        other.x += overlap * nx;
+        other.y += overlap * ny;
+    }
+    
+  }
+  
   void updateElapsedLapTime() {
     int elapsedTime = millis() - lastMillis;
     lastMillis = millis();
@@ -44,6 +86,8 @@ class Car {
   }
   
   void update(Track track) {
+    x += vx;
+    y += vy;
   }
   
   void draw(Camera c) {

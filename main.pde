@@ -61,19 +61,10 @@ void draw() {
   car.update(joy.dir);
   npc.update(track);
 
-  testCollidePoint = track.update(car);
-  if (testCollidePoint != null) {
-    collidePoint = testCollidePoint;
-    car.vx = -car.vx;
-    car.vy = -car.vy;
-    
-  }
-
-  if (collidePoint != null) {
-    stroke(255, 0, 255);
-    circle(camera.sx(collidePoint.x), camera.sy(collidePoint.y), 10);
-  }
-
+  track.update(car);
+  track.update(npc);
+  
+  car.doCollision(npc);
 
   car.draw(camera);
   npc.draw(camera);

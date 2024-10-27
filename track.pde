@@ -72,7 +72,7 @@ class Track {
     //println("-----------------------------------------");
   }
 
-  PVector update(Car car) {
+  void update(Car car) {
     car.updateElapsedLapTime();
                
     for (int j=0; j < coords.length; j++) {
@@ -105,11 +105,11 @@ class Track {
         }
           
         if (intersect != null) {
-          return intersect;
+          car.vx = -car.vx;
+          car.vy = -car.vy;
         }
       }
     }
-    return null;
   }
 
   void initialize(String[] strings) {

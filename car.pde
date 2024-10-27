@@ -95,8 +95,8 @@ class Car {
 
     // Blend the new direction with the current velocity direction for smoother steering
     float blendFactor = 0.2;  // Adjust blend factor for smoothness
-    vx = (1 - blendFactor) * vx + blendFactor * dirVec.x*2;
-    vy = (1 - blendFactor) * vy + blendFactor * dirVec.y*2;
+    vx = (1 - blendFactor) * vx + blendFactor * dirVec.x*5;
+    vy = (1 - blendFactor) * vy + blendFactor * dirVec.y*5;
 
     // Update position
     x += vx;

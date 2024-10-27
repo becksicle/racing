@@ -53,9 +53,13 @@ void draw() {
     text(displayStrs[i], 10, i*20 + 40);
   }
   
-  text("FPS: "+frameRate, width-300, 40);
+  //text("FPS: "+frameRate, width-300, 40);
   for(int i=0; i < car.lap; i++) {
-    text("Lap "+(i+1)+": "+formatTime(car.lapTimes.get(i)), width-300, 70+(i+1)*30);
+    text("Lap "+(i+1)+": "+formatTime(car.lapTimes.get(i)), width-300, 40+(i+1)*30);
+  }
+  
+  for(int i=0; i < npc.lap; i++) {
+    text("Lap "+(i+1)+": "+formatTime(npc.lapTimes.get(i)), width-150, 40+(i+1)*30);
   }
 
   car.update(joy.dir);

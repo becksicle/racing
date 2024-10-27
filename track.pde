@@ -44,13 +44,10 @@ class Track {
         p2 = tcs.get((i+1)%tcs.size());
         stroke(255, 255, 0);
         line(c.sx(p1.x), c.sy(p1.y), c.sx(p2.x), c.sy(p2.y));
-        if (j == 0) {
-          PVector p3 = getOppositePoint(i);
-          //if (lastPassedSegment == i) {
-          //  stroke(255, 0, 0);
-          //}
-          line(c.sx(p1.x), c.sy(p1.y), c.sx(p3.x), c.sy(p3.y));
-        }
+        //if (j == 0) {
+        //  PVector p3 = getOppositePoint(i);
+        //  line(c.sx(p1.x), c.sy(p1.y), c.sx(p3.x), c.sy(p3.y));
+        //}
       }
     }
   }
@@ -66,17 +63,14 @@ class Track {
   }
 
   void printAll() {
-    //println("-----------------------------------------");
     String[] strings = new String[coords.length];
     for (int ti=0; ti < coords.length; ti++) {
       strings[ti] = "";
       for (int ci = 0; ci < coords[ti].size(); ci++) {
         strings[ti] += coords[ti].get(ci).x + " " + coords[ti].get(ci).y+" ";
-        //    println("coords["+ti+"].add(new PVector("+coords[ti].get(ci).x+", "+coords[ti].get(ci).y+"));");
       }
     }
     saveStrings("track.txt", strings);
-    //println("-----------------------------------------");
   }
 
   void update(Car car) {
@@ -117,28 +111,6 @@ class Track {
         }
       }
     }
-  }
-
-  // Helper method to find the nearest segment on the track
-  int findNearestSegment(float x, float y) {
-    int nearestIndex = 0;
-    double minDistance = Double.MAX_VALUE;
-
-    for (int i = 0; i < track.coords[0].size(); i++) {
-      PVector innerPoint = coords[0].get(i);
-      PVector outerPoint = coords[1].get(i);
-
-      double centerX = (innerPoint.x + outerPoint.x) / 2;
-      double centerY = (innerPoint.y + outerPoint.y) / 2;
-      double distance = Math.sqrt((centerX - x) * (centerX - x) + (centerY - y) * (centerY - y));
-
-      if (distance < minDistance) {
-        minDistance = distance;
-        nearestIndex = i;
-      }
-    }
-
-    return nearestIndex;
   }
 
 

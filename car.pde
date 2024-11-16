@@ -1,3 +1,16 @@
+class DriverAttrs {
+  float maxSpeed = 10;
+  float handling = 0.2;
+  float jitter = 1.0;
+  
+  DriverAttrs(float maxSpeed, float handling, float jitter) {
+     this.maxSpeed = maxSpeed;
+     this.handling = handling;
+     this.jitter = jitter;
+  }
+}
+
+
 class Car {
   float x, y, vx, vy, tvx, tvy, radius = 25;
   color c;
@@ -6,8 +19,10 @@ class Car {
   int lap = 1;
   int lastMillis = millis();
   ArrayList<Integer> lapTimes = new ArrayList<Integer>();
+  DriverAttrs attrs = null;
+ 
 
-  Car(float x, float y, color c) {
+  Car(float x, float y, color c, DriverAttrs attrs) {
     this.x = x;
     this.y = y;
     this.c = c;
@@ -17,6 +32,7 @@ class Car {
 
     lastMillis = millis();
     lapTimes.add(0);
+    this.attrs = attrs;
   }
 
   void doCollision(Car other) {
@@ -92,11 +108,14 @@ class Car {
 
     // Calculate direction towards target point
     PVector dirVec = new PVector(targetPoint.x - x, targetPoint.y - y).normalize();
+    float error = random(2*attrs.jitter) - attrs.jitter;
+    dirVec.x += error;
+    dirVec.y += error;
+    dirVec = dirVec.normalize();
 
     // Blend the new direction with the current velocity direction for smoother steering
-    float blendFactor = 0.2;  // Adjust blend factor for smoothness
-    vx = (1 - blendFactor) * vx + blendFactor * dirVec.x*5;
-    vy = (1 - blendFactor) * vy + blendFactor * dirVec.y*5;
+    vx = (1 - attrs.handling) * vx + attrs.handling * dirVec.x*attrs.maxSpeed;
+    vy = (1 - attrs.handling) * vy + attrs.handling * dirVec.y*attrs.maxSpeed;
 
     // Update position
     x += vx;

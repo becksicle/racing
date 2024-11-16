@@ -1,5 +1,12 @@
-Car car = new Car(0, 0, color(255, 100, 100));
-Car npc = new Car(10, 10, color(100, 200, 150));
+Car car = new Car(0, 0, color(255, 100, 100), null);
+
+Car[] npcs = new Car[] {
+  new Car(10, 10, color(100, 200, 150), new DriverAttrs(8.0, 0.01, 0.6)),
+  new Car(20, 20, color(150, 200, 100), new DriverAttrs(6.0, 0.05, 0.2)),
+  new Car(30, 30, color(200, 150, 150), new DriverAttrs(5.0, 0.1, 0.1)),
+  new Car(40, 40, color(150, 50, 200), new DriverAttrs(10.0, 0.1, 0.6)),
+  
+};
 
 Camera camera = new Camera();
 Track track = new Track();
@@ -58,20 +65,29 @@ void draw() {
     text("Lap "+(i+1)+": "+formatTime(car.lapTimes.get(i)), width-300, 40+(i+1)*30);
   }
   
-  for(int i=0; i < npc.lap; i++) {
-    text("Lap "+(i+1)+": "+formatTime(npc.lapTimes.get(i)), width-150, 40+(i+1)*30);
-  }
+  //for(int i=0; i < npc.lap; i++) {
+  //  text("Lap "+(i+1)+": "+formatTime(npc.lapTimes.get(i)), width-150, 40+(i+1)*30);
+  //}
 
   car.update(joy.dir);
-  npc.update(track);
+  for(Car npc : npcs) {
+    npc.update(track);
+  }
 
   track.update(car);
-  track.update(npc);
-  
-  car.doCollision(npc);
-
   car.draw(camera);
-  npc.draw(camera);
+  
+  for(Car npc : npcs) {
+    track.update(npc);
+    car.doCollision(npc);
+    for(Car onpc : npcs) {
+      if(onpc != npc) {
+        onpc.doCollision(npc);
+      }
+    }
+    npc.draw(camera);
+  }
+
   track.draw(camera);
 
   joy.update();

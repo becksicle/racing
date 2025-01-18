@@ -112,6 +112,34 @@ class Track {
       }
     }
   }
+  
+  void itemUpdate(Item item) {
+    for (int j=0; j < coords.length; j++) {
+      ArrayList<PVector> tcs = coords[j];
+      for (int i=0; i < tcs.size(); i++) {
+        PVector p1 = tcs.get(i);
+        PVector p2 = tcs.get((i+1)%tcs.size());
+
+        // check wall collision
+        PVector intersect = segmentIntersection(
+          item.x, item.y,
+          item.x + item.vx, item.y + item.vy,
+          p1.x, p1.y,
+          p2.x, p2.y
+          );
+          
+        if (intersect != null) {
+          println("j: "+j+" i:"+i);
+          println("item before:"+item.vx+","+item.vy);
+          item.vx = -item.vx;
+          item.vy = -item.vy;
+          item.x += item.vx*5;
+          item.y += item.vy*5;
+          println("item after:"+item.vx+","+item.vy);
+        }
+      }
+    }
+  }
 
 
   void initialize(String[] strings) {

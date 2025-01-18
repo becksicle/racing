@@ -5,8 +5,14 @@ Car[] npcs = new Car[] {
   new Car(20, 20, color(150, 200, 100), new DriverAttrs(6.0, 0.05, 0.2)),
   new Car(30, 30, color(200, 150, 150), new DriverAttrs(5.0, 0.1, 0.1)),
   new Car(40, 40, color(150, 50, 200), new DriverAttrs(10.0, 0.1, 0.6)),
-  
 };
+
+SpawnPoint[] spawnPoints = new SpawnPoint[] {
+  new SpawnPoint(25, 25, color(255, 255, 255), Item.PROJECTILE),
+};
+
+ArrayList<Item> items = new ArrayList<Item>();
+ArrayList<Item> toRemove = new ArrayList<Item>();
 
 Camera camera = new Camera();
 Track track = new Track();
@@ -86,6 +92,42 @@ void draw() {
       }
     }
     npc.draw(camera);
+  }
+  
+  for(SpawnPoint sp : spawnPoints) {
+    sp.update();
+    sp.draw(camera);
+    
+    if(sp.hasItem) {
+      // TODO can cars have more than 1 item?
+      if(car.overlapsCircle(sp.x, sp.y, sp.radius)) {
+        items.add(sp.makeItem(car));
+      } else {
+        for(Car npc : npcs) {
+          if(npc.overlapsCircle(sp.x, sp.y, sp.radius)) {
+            items.add(sp.makeItem(npc));
+            break;
+          }
+        }
+      }
+    }
+  }
+  
+  toRemove.clear();
+  for(Item item : items) {
+    item.update();
+    if(item.hasBody) {
+      track.itemUpdate(item);
+    }
+    item.draw(camera);
+    
+    if(item.hasExpired) {
+      toRemove.add(item);
+    }
+  }
+  
+  for(Item item : toRemove) {
+    items.remove(item);
   }
 
   track.draw(camera);

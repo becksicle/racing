@@ -34,6 +34,13 @@ class Car {
     lapTimes.add(0);
     this.attrs = attrs;
   }
+  
+  boolean overlapsCircle(float x, float y, float radius) {
+    double dx = x - this.x;
+    double dy = y - this.y;
+    double distance = Math.sqrt(dx * dx + dy * dy);
+    return (distance <= radius);
+  }
 
   void doCollision(Car other) {
     // Calculate the distance between the centers
@@ -120,10 +127,10 @@ class Car {
     // Update position
     x += vx;
     y += vy;
+    
   }
 
   void draw(Camera c) {
-
     fill(this.c);
     stroke(255, 255, 255);
 
@@ -134,5 +141,6 @@ class Car {
 
     stroke(255, 255, 0);
     line(c.sx(x), c.sy(y), c.sx(x)+tvx*c.sl(20), c.sy(y)-tvy*c.sl(20));
+    
   }
 }

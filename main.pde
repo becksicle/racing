@@ -1,21 +1,5 @@
-Car car = new Car(0, 0, color(255, 100, 100), null);
-
-Car[] npcs = new Car[] {
-  new Car(10, 10, color(100, 200, 150), new DriverAttrs(8.0, 0.01, 0.6)),
-  new Car(20, 20, color(150, 200, 100), new DriverAttrs(6.0, 0.05, 0.2)),
-  new Car(30, 30, color(200, 150, 150), new DriverAttrs(5.0, 0.1, 0.1)),
-  new Car(40, 40, color(150, 50, 200), new DriverAttrs(10.0, 0.1, 0.6)),
-};
-
-SpawnPoint[] spawnPoints = new SpawnPoint[] {
-  new SpawnPoint(25, 25, color(255, 255, 255), Item.PROJECTILE),
-};
-
-ArrayList<Item> items = new ArrayList<Item>();
-ArrayList<Item> toRemove = new ArrayList<Item>();
-
+World world = new World();
 Camera camera = new Camera();
-Track track = new Track();
 
 Joystick joy = new Joystick();
 PVector collidePoint = null;
@@ -37,22 +21,28 @@ String formatTime(int ms) {
   ms -= minutes * 1000 * 60;
   int seconds = ms / 1000;
   ms -= seconds * 1000;
-  if(minutes > 0) {
+  if (minutes > 0) {
     String toReturn = minutes+":";
-    if(seconds < 10) toReturn += "0";
+    if (seconds < 10) toReturn += "0";
     toReturn += seconds+"."+ms;
     return toReturn;
   } else {
     return seconds+"."+ms;
   }
-  
 }
 
 void setup() {
+  world.add(new HumanCar(0, 0, color(255, 100, 100)));
+  world.add(new AICar(10, 10, color(100, 200, 150), new DriverAttrs(8.0, 0.01, 0.6)));
+  world.add(new AICar(20, 20, color(150, 200, 100), new DriverAttrs(6.0, 0.05, 0.2)));
+  world.add(new AICar(30, 30, color(200, 150, 150), new DriverAttrs(5.0, 0.1, 0.1)));
+  world.add(new AICar(40, 40, color(150, 50, 200), new DriverAttrs(10.0, 0.1, 0.6)));
+  world.add(new SpawnPoint(25, 25, color(255, 255, 255), Item.PROJECTILE));
+  
   rectMode(CENTER);
   size(1100, 600);
   String[] strings = loadStrings("track.txt");
-  track.initialize(strings);
+  world.track.initialize(strings);
 }
 
 void draw() {
@@ -61,81 +51,26 @@ void draw() {
   fill(255, 255, 255);
   textSize(20);
   handleKeys();
-  
-  for(int i=0; i < displayStrs.length; i++) {
+
+  for (int i=0; i < displayStrs.length; i++) {
     text(displayStrs[i], 10, i*20 + 40);
   }
-  
+
   //text("FPS: "+frameRate, width-300, 40);
-  for(int i=0; i < car.lap; i++) {
+  Car car = (Car)world.getFirstHumanCar();
+  for (int i=0; i < car.lap; i++) {
+    stroke(car.c);
     text("Lap "+(i+1)+": "+formatTime(car.lapTimes.get(i)), width-300, 40+(i+1)*30);
   }
-  
-  //for(int i=0; i < npc.lap; i++) {
-  //  text("Lap "+(i+1)+": "+formatTime(npc.lapTimes.get(i)), width-150, 40+(i+1)*30);
-  //}
 
-  car.update(joy.dir);
-  for(Car npc : npcs) {
-    npc.update(track);
-  }
-
-  track.update(car);
-  car.draw(camera);
-  
-  for(Car npc : npcs) {
-    track.update(npc);
-    car.doCollision(npc);
-    for(Car onpc : npcs) {
-      if(onpc != npc) {
-        onpc.doCollision(npc);
-      }
-    }
-    npc.draw(camera);
-  }
-  
-  for(SpawnPoint sp : spawnPoints) {
-    sp.update();
-    sp.draw(camera);
-    
-    if(sp.hasItem) {
-      // TODO can cars have more than 1 item?
-      if(car.overlapsCircle(sp.x, sp.y, sp.radius)) {
-        items.add(sp.makeItem(car));
-      } else {
-        for(Car npc : npcs) {
-          if(npc.overlapsCircle(sp.x, sp.y, sp.radius)) {
-            items.add(sp.makeItem(npc));
-            break;
-          }
-        }
-      }
-    }
-  }
-  
-  toRemove.clear();
-  for(Item item : items) {
-    item.update();
-    if(item.hasBody) {
-      track.itemUpdate(item);
-    }
-    item.draw(camera);
-    
-    if(item.hasExpired) {
-      toRemove.add(item);
-    }
-  }
-  
-  for(Item item : toRemove) {
-    items.remove(item);
-  }
-
-  track.draw(camera);
+  world.joyDir = joy.dir;
+  world.update();
+  world.draw(camera);
 
   joy.update();
   joy.draw();
 
-  if(autoCam) {
+  if (autoCam) {
     float dcx = car.x - camera.px;
     float dcy = car.y - camera.py;
     camera.px += 0.05 * dcx;
@@ -168,14 +103,14 @@ void handleKeys() {
 
 void keyPressed() {
   if (key == '1') {
-    track.add(camera.wx(mouseX), camera.wy(mouseY), 0);
+    world.track.add(camera.wx(mouseX), camera.wy(mouseY), 0);
   } else if (key == '2') {
-    track.add(camera.wx(mouseX), camera.wy(mouseY), 1);
+    world.track.add(camera.wx(mouseX), camera.wy(mouseY), 1);
   } else if (key =='p') {
-    track.printAll();
+    world.track.printAll();
   } else if (key == '0') {
     autoCam = true;
   } else if (key == '`') {
-    track.clear();
+    world.track.clear();
   }
 }

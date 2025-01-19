@@ -1,31 +1,10 @@
 class Track {
   ArrayList<PVector>[] coords = new ArrayList[] { new ArrayList<PVector>(), new ArrayList<PVector>()};
 
-  PVector segmentIntersection(
-    float x1, float y1,
-    float x2, float y2,
-    float x3, float y3,
-    float x4, float y4
-    ) {
-    float a = (x4 - x3) * (y3 - y1) - (y4 - y3)*(x3 - x1);
-    float b = (x4 - x3)*(y2 - y1) - (y4 - y3)*(x2 - x1);
-    float c = (x2 - x1)*(y3 - y1) - (y2 - y1)*(x3 - x1);
-
-    if (b == 0) return null; // segments are parallel
-    if (a == 0 && b == 0) return new PVector(x1, y1); // collinear
-
-    float alpha =  a / b;
-    float beta = c / b;
-
-    if (alpha < 0 || alpha > 1 || beta < 0 || beta > 1) return null;
-
-    return new PVector(x1 + alpha * (x2-x1), y1 + alpha * (y2 - y1));
-  }
-
   PVector getOppositePoint(int pointIndex) {
     return coords[1].get(pointIndex);
   }
-  
+
   PVector getCenterPoint(int index) {
     PVector innerPoint = coords[0].get(index);
     PVector outerPoint = coords[1].get(index);
@@ -33,7 +12,6 @@ class Track {
     float centerY = (innerPoint.y + outerPoint.y) / 2;
     return new PVector(centerX, centerY);
   }
-
 
   void draw(Camera c) {
     PVector p1, p2;
@@ -73,74 +51,61 @@ class Track {
     saveStrings("track.txt", strings);
   }
 
-  void update(Car car) {
-    car.updateElapsedLapTime();
+  int locateSegment(GameObject gobj) {
+    ArrayList<PVector> outer = coords[0];
+    ArrayList<PVector> inner = coords[1];
 
-    for (int j=0; j < coords.length; j++) {
-      ArrayList<PVector> tcs = coords[j];
-      for (int i=0; i < tcs.size(); i++) {
-        PVector p1 = tcs.get(i);
-        PVector p2 = tcs.get((i+1)%tcs.size());
+    for (int i=0; i < outer.size(); i++) {
+      PVector p1 = outer.get(i);
+      PVector p2 = outer.get((i+1)%outer.size());
+      PVector p4 = inner.get(i);
+      PVector p3 = inner.get((i+1)%inner.size());
 
-        // check wall collision
-        PVector intersect = segmentIntersection(
-          car.x, car.y,
-          car.x + car.vx, car.y + car.vy,
-          p1.x, p1.y,
-          p2.x, p2.y
-          );
-
-        // check if we've passed a segment and/or made a full lap
-        if (j == 0 && i == (car.lastPassedSegment + 1) % tcs.size()) {
-          PVector p3 = getOppositePoint(i);
-          PVector passedIntersect = segmentIntersection(
-            car.x, car.y,
-            car.x + car.vx, car.y + car.vy,
-            p1.x, p1.y,
-            p3.x, p3.y
-            );
-
-          if (passedIntersect != null) {
-            car.passSegment(i);
-          }
-        }
-
-        if (intersect != null) {
-          car.vx = -car.vx;
-          car.vy = -car.vy;
-        }
-      }
+      if (isPointInQuadrilateral(
+        gobj.x, gobj.y,
+        p1.x, p1.y,
+        p2.x, p2.y,
+        p3.x, p3.y,
+        p4.x, p4.y
+        )) return i;
     }
+    println("problem! "+gobj.x+", "+gobj.y);
+    int i = gobj.currentSegment;
+    PVector p1 = outer.get(i);
+    PVector p2 = outer.get((i+1)%outer.size());
+    PVector p4 = inner.get(i);
+    PVector p3 = inner.get((i+1)%inner.size());
+    println(isPointInQuadrilateral(
+        gobj.x, gobj.y,
+        p1.x, p1.y,
+        p2.x, p2.y,
+        p3.x, p3.y,
+        p4.x, p4.y
+        ));
+    
+    return gobj.currentSegment;
   }
   
-  void itemUpdate(Item item) {
-    for (int j=0; j < coords.length; j++) {
-      ArrayList<PVector> tcs = coords[j];
-      for (int i=0; i < tcs.size(); i++) {
-        PVector p1 = tcs.get(i);
-        PVector p2 = tcs.get((i+1)%tcs.size());
-
-        // check wall collision
-        PVector intersect = segmentIntersection(
-          item.x, item.y,
-          item.x + item.vx, item.y + item.vy,
-          p1.x, p1.y,
-          p2.x, p2.y
-          );
-          
-        if (intersect != null) {
-          println("j: "+j+" i:"+i);
-          println("item before:"+item.vx+","+item.vy);
-          item.vx = -item.vx;
-          item.vy = -item.vy;
-          item.x += item.vx*5;
-          item.y += item.vy*5;
-          println("item after:"+item.vx+","+item.vy);
-        }
-      }
-    }
+  boolean isNextSegment(int cur, int next) {
+    return ((cur+1) % coords[0].size()) == next;
   }
 
+  boolean isGameObjectCollidingWithSegment(int segment, GameObject gobj) {
+    // outer/inner track loops
+    for(ArrayList<PVector> pts : coords) {
+      PVector p1 = pts.get(segment);
+      PVector p2 = pts.get((segment+1)%pts.size());
+      PVector intersect = segmentIntersection(
+        gobj.x, gobj.y,
+        gobj.x + gobj.vx, gobj.y + gobj.vy,
+        p1.x, p1.y,
+        p2.x, p2.y
+        );
+      
+      if(intersect != null) return true;
+    }
+    return false;
+  }
 
   void initialize(String[] strings) {
     for (int i=0; i < 2; i++) {

@@ -1,45 +1,54 @@
-class Item {
+abstract class Item extends GameObject {
   static final int PROJECTILE = 0;
   static final int SPEEDUP = 1;
 
   boolean hasExpired = false;
   boolean hasBody = false;
-  float x, y, vx=0, vy=0;
 
   int birthTime = millis();
   Car owner;
-  
+
   Item(Car owner) {
+    c = color(0, 255, 0);
     this.owner = owner;
   }
 
   int timeAlive () {
     return millis() - birthTime;
   }
-
-  void update() {
-  }
-  
-  void draw(Camera cam) {
-  }
 }
 
 class Projectile extends Item {
   boolean released = false;
   int radius = 8;
-  
+  int currentSegment;
+
   Projectile(Car owner) {
     super(owner);
     hasBody = true;
   }
 
-  void update() {
+  void handleGameObjectCollision(float ox, float oy, float ovx, float ovy, GameObject other, ArrayList<GameObject> toAdd) {
+    if(released) {
+      hasExpired = true;
+    }
+  }
+
+  void handleTrackCollision(Track track) {
+    vx = -vx;
+    vy = -vy;
+    x += vx*5;
+    y += vy*5;
+  }
+
+  void update(World world) {
+    
     if (key == ' ') {
       released = true;
       birthTime = millis();
       PVector dir = new PVector(owner.vx, owner.vy).normalize();
-      vx = dir.x*10;
-      vy = dir.y*10;
+      vx = dir.x*25;
+      vy = dir.y*25;
     }
 
     if (released) {
@@ -53,24 +62,21 @@ class Projectile extends Item {
       x = owner.x + dir.x*owner.radius*0.7;
       y = owner.y + dir.y*owner.radius*0.7;
     }
+
+    currentSegment = world.track.locateSegment(this);
   }
 
   void draw(Camera cam) {
-    fill(0, 255, 0);
+    fill(c);
     circle(cam.sx(x), cam.sy(y), cam.sl(radius));
   }
-}
 
-class Speedup extends Item {
-  Speedup(Car owner) {
-    super(owner);
+  boolean isDead() {
+    return hasExpired;
   }
 }
 
-
-class SpawnPoint {
-  float x, y, radius = 15;
-  color c;
+class SpawnPoint extends GameObject {
 
   boolean hasItem = true;
   int lastSpawnTime = millis();
@@ -82,10 +88,21 @@ class SpawnPoint {
     this.x = x;
     this.y = y;
     this.c = c;
+    this.radius = 15;
     this.itemType = itemType;
   }
 
-  void update() {
+  void handleTrackCollision(Track track) {
+    return;
+  }
+  
+  void handleGameObjectCollision(float ox, float oy, float ovx, float ovy, GameObject other, ArrayList<GameObject> toAdd) {
+    if (hasItem && other instanceof Car) {
+      toAdd.add(makeItem((Car)other));
+    }
+  }
+  
+  void update(World world) {
     if (!hasItem && (millis() - lastSpawnTime) > COOL_DOWN_TIME) {
       hasItem = true;
       lastSpawnTime = millis();
@@ -106,10 +123,7 @@ class SpawnPoint {
     hasItem = false;
     if (itemType == Item.PROJECTILE) {
       return new Projectile(owner);
-    } else if (itemType == Item.SPEEDUP) {
-      return new Speedup(owner);
-    }
-
+    } 
     return null;
   }
 }

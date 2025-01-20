@@ -20,6 +20,7 @@ class Car extends GameObject {
   int cooldown;
   ArrayList<Integer> lapTimes = new ArrayList<Integer>();
   DriverAttrs attrs = null;
+  Item item;
 
 
   Car(float x, float y, color c, DriverAttrs attrs) {

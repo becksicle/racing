@@ -11,6 +11,7 @@ abstract class Item extends GameObject {
   Item(Car owner) {
     c = color(0, 255, 0);
     this.owner = owner;
+    owner.item = this;
     this.radius = 8;
   }
 
@@ -29,7 +30,7 @@ class Projectile extends Item {
   }
 
   void handleGameObjectCollision(float ox, float oy, float ovx, float ovy, GameObject other, ArrayList<GameObject> toAdd) {
-    if(released && !hasExpired && (other instanceof Car)) {
+    if (released && !hasExpired && (other instanceof Car)) {
       println("collided with gobj - dead now");
       hasExpired = true;
     }
@@ -44,13 +45,15 @@ class Projectile extends Item {
   }
 
   void update(World world) {
-    
-    if (keyPressed && key == ' ') {
+
+    if (!released && keyPressed && key == ' ') {
       released = true;
       birthTime = millis();
       PVector dir = new PVector(owner.vx, owner.vy).normalize();
       vx = dir.x*15;
       vy = dir.y*15;
+      owner.item = null;
+      owner = null;
     }
 
     if (released) {
@@ -76,7 +79,7 @@ class Projectile extends Item {
   }
 
   boolean isDead() {
-    if(hasExpired) println("dead "+this+" "+millis());
+    if (hasExpired) println("dead "+this+" "+millis());
     return hasExpired;
   }
 }
@@ -100,13 +103,15 @@ class SpawnPoint extends GameObject {
   void handleTrackCollision(Track track) {
     return;
   }
-  
+
   void handleGameObjectCollision(float ox, float oy, float ovx, float ovy, GameObject other, ArrayList<GameObject> toAdd) {
     if (hasItem && other instanceof Car) {
-      toAdd.add(makeItem((Car)other));
+      Car car = (Car)other;
+      if (car.item != null) return;
+      toAdd.add(makeItem(car));
     }
   }
-  
+
   void update(World world) {
     if (!hasItem && (millis() - lastSpawnTime) > COOL_DOWN_TIME) {
       hasItem = true;
@@ -128,7 +133,7 @@ class SpawnPoint extends GameObject {
     hasItem = false;
     if (itemType == Item.PROJECTILE) {
       return new Projectile(owner);
-    } 
+    }
     return null;
   }
 }

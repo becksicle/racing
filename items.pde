@@ -41,6 +41,39 @@ class Projectile extends Item {
     y += vy*5;
   }
 
+  void updateReleased(World world) {
+    Track track = world.track;
+    int ts = track.coords[0].size();
+    
+    PVector targetPoint = track.getCenterPoint((currentSegment + 1) % ts);
+    PVector dirVec = new PVector(targetPoint.x - x, targetPoint.y - y).normalize();
+    
+    for(GameObject gobj : world.gameObjects) {
+      if(gobj.currentSegment != currentSegment 
+          && gobj.currentSegment != ((currentSegment + 1) % ts)) continue;
+      if(!(gobj instanceof Car)) continue;
+        Car car = (Car)gobj;
+        PVector v1 = new PVector(targetPoint.x - x, targetPoint.y - y);
+        PVector v2 = new PVector(car.x - x, car.y - y);
+        if(abs(PVector.angleBetween(v, v2)) < PI/2.0) {
+          dirVec = v2.normalize();
+        }
+    }
+     
+    // Blend the new direction with the current velocity direction for smoother steering
+    vx = dirVec.x * 15;
+    vy = dirVec.y * 15;
+
+    x += vx;
+    y += vy;
+    
+    //println("released update: "+x+","+y+","+vx+","+vy+" time alive: "+timeAlive()+ " "+hasExpired+" segment: "+currentSegment);
+    
+    if (timeAlive() > 10000) {
+      hasExpired = true;
+    }
+  }
+
   void update(World world) {
     if (!released && keyPressed && key == ' ') {
       released = true;
@@ -53,12 +86,7 @@ class Projectile extends Item {
     }
 
     if (released) {
-      x += vx;
-      y += vy;
-      //println("released update: "+x+","+y+","+vx+","+vy+" time alive: "+timeAlive()+ " "+hasExpired+" segment: "+currentSegment);
-      if (timeAlive() > 10000) {
-        hasExpired = true;
-      }
+      updateReleased(world);
     } else {
       PVector dir = new PVector(owner.vx, owner.vy).normalize();
       x = owner.x + dir.x*owner.radius*0.7;

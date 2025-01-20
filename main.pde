@@ -33,10 +33,10 @@ String formatTime(int ms) {
 
 void setup() {
   world.add(new HumanCar(0, 0, color(255, 100, 100)));
-  //world.add(new AICar(10, 10, color(100, 200, 150), new DriverAttrs(8.0, 0.01, 0.6)));
-  //world.add(new AICar(20, 20, color(150, 200, 100), new DriverAttrs(6.0, 0.05, 0.2)));
-  //world.add(new AICar(30, 30, color(200, 150, 150), new DriverAttrs(5.0, 0.1, 0.1)));
-  //world.add(new AICar(40, 40, color(150, 50, 200), new DriverAttrs(10.0, 0.1, 0.6)));
+  world.add(new AICar(10, 10, color(100, 200, 150), new DriverAttrs(8.0, 0.01, 0.6)));
+  world.add(new AICar(20, 20, color(150, 200, 100), new DriverAttrs(6.0, 0.05, 0.2)));
+  world.add(new AICar(30, 30, color(200, 150, 150), new DriverAttrs(5.0, 0.1, 0.1)));
+  world.add(new AICar(40, 40, color(150, 50, 200), new DriverAttrs(10.0, 0.1, 0.6)));
   world.add(new SpawnPoint(25, 25, color(255, 255, 255), Item.PROJECTILE));
   
   rectMode(CENTER);

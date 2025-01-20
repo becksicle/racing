@@ -90,7 +90,7 @@ class Track {
     return ((cur+1) % coords[0].size()) == next;
   }
 
-  boolean isGameObjectCollidingWithSegment(int segment, GameObject gobj) {
+  boolean isGameObjectCollidingWithSegment(int segment, GameObject gobj) {    
     // outer/inner track loops
     for(ArrayList<PVector> pts : coords) {
       PVector p1 = pts.get(segment);

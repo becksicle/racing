@@ -22,7 +22,6 @@ abstract class Item extends GameObject {
 
 class Projectile extends Item {
   boolean released = false;
-  int currentSegment;
 
   Projectile(Car owner) {
     super(owner);
@@ -31,13 +30,11 @@ class Projectile extends Item {
 
   void handleGameObjectCollision(float ox, float oy, float ovx, float ovy, GameObject other, ArrayList<GameObject> toAdd) {
     if (released && !hasExpired && (other instanceof Car)) {
-      println("collided with gobj - dead now");
       hasExpired = true;
     }
   }
 
   void handleTrackCollision(Track track) {
-    println("collided with track");
     vx = -vx;
     vy = -vy;
     x += vx*5;
@@ -45,7 +42,6 @@ class Projectile extends Item {
   }
 
   void update(World world) {
-
     if (!released && keyPressed && key == ' ') {
       released = true;
       birthTime = millis();
@@ -59,10 +55,9 @@ class Projectile extends Item {
     if (released) {
       x += vx;
       y += vy;
-      println("released update: "+x+","+y+","+vx+","+vy+" time alive: "+timeAlive()+ " "+hasExpired);
+      //println("released update: "+x+","+y+","+vx+","+vy+" time alive: "+timeAlive()+ " "+hasExpired+" segment: "+currentSegment);
       if (timeAlive() > 10000) {
         hasExpired = true;
-        println("expired!");
       }
     } else {
       PVector dir = new PVector(owner.vx, owner.vy).normalize();
@@ -79,7 +74,6 @@ class Projectile extends Item {
   }
 
   boolean isDead() {
-    if (hasExpired) println("dead "+this+" "+millis());
     return hasExpired;
   }
 }

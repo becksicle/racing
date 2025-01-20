@@ -10,8 +10,8 @@ abstract class GameObject {
   
   boolean isCollidingWithGameObject(GameObject other) {
     if(dist(other.x, other.y, x, y) < 10 && other.getClass().getName().contains("Projectile")) {
-    println(this.getClass().getName()+this+" to "+other.getClass().getName()+other+" "+dist(other.x, other.y, x, y));
-    println("radius: "+min(other.radius, radius));
+      println(this.getClass().getName()+this+" to "+other.getClass().getName()+other+" "+dist(other.x, other.y, x, y));
+      println("radius: "+min(other.radius, radius));
     }
     return dist(other.x, other.y, x, y) <= min(other.radius, radius);
   }

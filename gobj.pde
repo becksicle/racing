@@ -9,7 +9,11 @@ abstract class GameObject {
   abstract void handleGameObjectCollision(float ox, float oy, float ovx, float ovy, GameObject other, ArrayList<GameObject> toAdd);
   
   boolean isCollidingWithGameObject(GameObject other) {
-    return dist(other.x, other.y, x, y) <= radius;
+    if(dist(other.x, other.y, x, y) < 10 && other.getClass().getName().contains("Projectile")) {
+    println(this.getClass().getName()+this+" to "+other.getClass().getName()+other+" "+dist(other.x, other.y, x, y));
+    println("radius: "+min(other.radius, radius));
+    }
+    return dist(other.x, other.y, x, y) <= min(other.radius, radius);
   }
   
   boolean isCollidingWithTrack(Track track) {

@@ -49,6 +49,7 @@ class World {
     }
 
     for (GameObject obj : toRemove) {
+      println("removing "+obj);
       gameObjects.remove(obj);
     }
     for (GameObject obj : toAdd) {

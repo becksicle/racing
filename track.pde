@@ -69,19 +69,19 @@ class Track {
         p4.x, p4.y
         )) return i;
     }
-    println("problem! "+gobj.x+", "+gobj.y);
-    int i = gobj.currentSegment;
-    PVector p1 = outer.get(i);
-    PVector p2 = outer.get((i+1)%outer.size());
-    PVector p4 = inner.get(i);
-    PVector p3 = inner.get((i+1)%inner.size());
-    println(isPointInQuadrilateral(
-        gobj.x, gobj.y,
-        p1.x, p1.y,
-        p2.x, p2.y,
-        p3.x, p3.y,
-        p4.x, p4.y
-        ));
+    //println("problem! "+gobj.x+", "+gobj.y);
+    //int i = gobj.currentSegment;
+    //PVector p1 = outer.get(i);
+    //PVector p2 = outer.get((i+1)%outer.size());
+    //PVector p4 = inner.get(i);
+    //PVector p3 = inner.get((i+1)%inner.size());
+    //println(isPointInQuadrilateral(
+    //    gobj.x, gobj.y,
+    //    p1.x, p1.y,
+    //    p2.x, p2.y,
+    //    p3.x, p3.y,
+    //    p4.x, p4.y
+    //    ));
     
     return gobj.currentSegment;
   }
